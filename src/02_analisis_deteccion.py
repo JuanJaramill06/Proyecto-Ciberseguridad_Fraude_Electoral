@@ -12,7 +12,8 @@ Genera un dataset final con las banderas de cada tecnica y un score combinado.
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv("/home/claude/proyecto_fraude/dataset_votacion.csv")
+import os
+df = pd.read_csv("../data/dataset_votacion.csv")
 
 # =========================================================
 # TECNICA 1: REGLAS SIMPLES
@@ -64,7 +65,8 @@ df["flag_estadistica"] = (
 df["flag_combinado"] = df["flag_reglas"] | df["flag_estadistica"]
 df["n_tecnicas_que_detectan"] = df["flag_reglas"].astype(int) + df["flag_estadistica"].astype(int)
 
-df.to_csv("/home/claude/proyecto_fraude/dataset_con_deteccion.csv", index=False)
+os.makedirs("../resultados", exist_ok=True)
+df.to_csv("../resultados/dataset_con_deteccion.csv", index=False)
 
 # =========================================================
 # EVALUACION CONTRA GROUND TRUTH (solo posible porque el dato es simulado)

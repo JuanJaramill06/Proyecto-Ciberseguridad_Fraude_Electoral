@@ -3,14 +3,16 @@ Proyecto Final 1 - Deteccion de fraude en procesos electorales
 Paso 3: Visualizaciones (5 graficas)
 """
 
+import os
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
 sns.set_theme(style="whitegrid")
-df = pd.read_csv("/home/claude/proyecto_fraude/dataset_con_deteccion.csv")
+df = pd.read_csv("../resultados/dataset_con_deteccion.csv")
 
-OUT = "/home/claude/proyecto_fraude"
+OUT = "../resultados/figuras"
+os.makedirs(OUT, exist_ok=True)
 
 # 1. Distribucion de participacion, normales vs anomalas
 plt.figure(figsize=(8, 5))

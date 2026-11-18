@@ -109,7 +109,9 @@ df["pct_A"] = df["votos_A"] / df["votos_emitidos"].replace(0, np.nan) * 100
 df["pct_B"] = df["votos_B"] / df["votos_emitidos"].replace(0, np.nan) * 100
 df["pct_C"] = df["votos_C"] / df["votos_emitidos"].replace(0, np.nan) * 100
 
-df.to_csv("/home/claude/proyecto_fraude/dataset_votacion.csv", index=False)
+import os
+os.makedirs("../data", exist_ok=True)
+df.to_csv("../data/dataset_votacion.csv", index=False)
 print("Dataset generado:", df.shape)
 print(df.head())
 print("\nTotal mesas:", len(df), "| Anomalas (ground truth):", df["es_anomalia_real"].sum())
