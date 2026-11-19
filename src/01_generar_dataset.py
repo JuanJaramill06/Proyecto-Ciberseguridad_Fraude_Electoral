@@ -12,6 +12,7 @@ proceso electoral real.
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 np.random.seed(42)
 
@@ -109,9 +110,18 @@ df["pct_A"] = df["votos_A"] / df["votos_emitidos"].replace(0, np.nan) * 100
 df["pct_B"] = df["votos_B"] / df["votos_emitidos"].replace(0, np.nan) * 100
 df["pct_C"] = df["votos_C"] / df["votos_emitidos"].replace(0, np.nan) * 100
 
-import os
-os.makedirs("../data", exist_ok=True)
-df.to_csv("../data/dataset_votacion.csv", index=False)
+# Directorio principal del proyecto
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Directorio donde se almacenará el dataset
+DATA_DIR = BASE_DIR / "data"
+
+# Crear directorio si no existe
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+# Guardar dataset
+df.to_csv(DATA_DIR / "dataset_votacion.csv", index=False)
+
 print("Dataset generado:", df.shape)
 print(df.head())
 print("\nTotal mesas:", len(df), "| Anomalas (ground truth):", df["es_anomalia_real"].sum())

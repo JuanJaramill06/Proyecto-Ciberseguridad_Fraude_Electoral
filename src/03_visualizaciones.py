@@ -3,16 +3,23 @@ Proyecto Final 1 - Deteccion de fraude en procesos electorales
 Paso 3: Visualizaciones (5 graficas)
 """
 
-import os
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from pathlib import Path
+
+# Directorio principal del proyecto
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Directorios de entrada y salida
+RESULTADOS_DIR = BASE_DIR / "resultados"
+FIGURAS_DIR = RESULTADOS_DIR / "figuras"
 
 sns.set_theme(style="whitegrid")
-df = pd.read_csv("../resultados/dataset_con_deteccion.csv")
+df = pd.read_csv(RESULTADOS_DIR / "dataset_con_deteccion.csv")
 
-OUT = "../resultados/figuras"
-os.makedirs(OUT, exist_ok=True)
+# Crear directorio para almacenar las visualizaciones
+FIGURAS_DIR.mkdir(parents=True, exist_ok=True)
 
 # 1. Distribucion de participacion, normales vs anomalas
 plt.figure(figsize=(8, 5))
@@ -24,7 +31,7 @@ plt.xlabel("Participación (%)")
 plt.ylabel("Número de mesas")
 plt.legend(title="Marcada como anómala")
 plt.tight_layout()
-plt.savefig(f"{OUT}/fig1_distribucion_participacion.png", dpi=150)
+plt.savefig(FIGURAS_DIR / "fig1_distribucion_participacion.png", dpi=150)
 plt.close()
 
 # 2. Dispersion: participacion vs tiempo de reporte, coloreado por deteccion
@@ -37,7 +44,7 @@ plt.xlabel("Tiempo de reporte (minutos tras el cierre)")
 plt.ylabel("Participación (%)")
 plt.legend(title="Marcada como anómala")
 plt.tight_layout()
-plt.savefig(f"{OUT}/fig2_participacion_vs_tiempo.png", dpi=150)
+plt.savefig(FIGURAS_DIR / "fig2_participacion_vs_tiempo.png", dpi=150)
 plt.close()
 
 # 3. Boxplot de z-score de participacion por municipio
@@ -50,7 +57,7 @@ plt.axhline(-3, color="black", linestyle="--")
 plt.title("Z-score de participación por municipio (umbral |z|>3)")
 plt.xticks(rotation=20)
 plt.tight_layout()
-plt.savefig(f"{OUT}/fig3_zscore_por_municipio.png", dpi=150)
+plt.savefig(FIGURAS_DIR / "fig3_zscore_por_municipio.png", dpi=150)
 plt.close()
 
 # 4. Porcentaje maximo de un solo candidato por mesa
@@ -63,7 +70,7 @@ plt.title("Porcentaje del candidato más votado por mesa")
 plt.xlabel("% de votos del candidato líder en la mesa")
 plt.legend(title="Marcada como anómala")
 plt.tight_layout()
-plt.savefig(f"{OUT}/fig4_concentracion_candidato.png", dpi=150)
+plt.savefig(FIGURAS_DIR / "fig4_concentracion_candidato.png", dpi=150)
 plt.close()
 
 # 5. Comparacion de tecnicas (barras): cuantas detecta cada una
@@ -81,7 +88,7 @@ plt.xticks(rotation=15)
 for i, v in enumerate(conteos.values()):
     plt.text(i, v + 1, str(v), ha="center")
 plt.tight_layout()
-plt.savefig(f"{OUT}/fig5_comparacion_tecnicas.png", dpi=150)
+plt.savefig(FIGURAS_DIR / "fig5_comparacion_tecnicas.png", dpi=150)
 plt.close()
 
-print("5 visualizaciones generadas en", OUT)
+print("5 visualizaciones generadas en", FIGURAS_DIR)

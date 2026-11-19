@@ -11,9 +11,73 @@ Genera un dataset final con las banderas de cada tecnica y un score combinado.
 
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
-import os
-df = pd.read_csv("../data/dataset_votacion.csv")
+# Directorio principal del proyecto
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Directorios de entrada y salida
+DATA_DIR = BASE_DIR / "data"
+RESULTADOS_DIR = BASE_DIR / "resultados"
+
+df = pd.read_csv(DATA_DIR / "dataset_votacion.csv")
+
+
+# =========================================================
+# ANALISIS EXPLORATORIO DE DATOS (EDA)
+# =========================================================
+
+print("\n" + "=" * 55)
+print("ANALISIS EXPLORATORIO DE DATOS")
+print("=" * 55)
+
+# 1. Informacion general del dataset
+print("\n--- INFORMACION GENERAL ---")
+print("Cantidad de registros:", len(df))
+print("Cantidad de columnas:", len(df.columns))
+
+print("\nInformacion de las columnas:")
+df.info()
+
+# 2. Estadisticas descriptivas
+print("\n--- ESTADISTICAS DESCRIPTIVAS ---")
+print(df.describe())
+
+# 3. Identificacion de valores nulos
+print("\n--- VALORES NULOS ---")
+print(df.isnull().sum())
+
+# 4. Distribucion de mesas por municipio
+print("\n--- MESAS POR MUNICIPIO ---")
+print(df["municipio"].value_counts())
+
+# 5. Distribucion de mesas normales y anomalas
+print("\n--- DISTRIBUCION DE ANOMALIAS ---")
+print(df["es_anomalia_real"].value_counts().rename({
+    0: "Mesas normales",
+    1: "Mesas anomalas"
+}))
+
+
+# 6. Validacion de consistencia de votos
+print("\n--- VALIDACION DE VOTOS ---")
+
+df["total_votos_candidatos"] = (
+    df["votos_A"] + df["votos_B"] + df["votos_C"]
+)
+
+inconsistencias = (
+    df["total_votos_candidatos"] != df["votos_emitidos"]
+).sum()
+
+if inconsistencias == 0:
+    print("Validacion exitosa: todos los votos coinciden.")
+else:
+    print("Se encontraron", inconsistencias, "registros inconsistentes.")
+
+print("Registros con inconsistencias:", inconsistencias)
+
+
 
 # =========================================================
 # TECNICA 1: REGLAS SIMPLES
@@ -65,8 +129,11 @@ df["flag_estadistica"] = (
 df["flag_combinado"] = df["flag_reglas"] | df["flag_estadistica"]
 df["n_tecnicas_que_detectan"] = df["flag_reglas"].astype(int) + df["flag_estadistica"].astype(int)
 
-os.makedirs("../resultados", exist_ok=True)
-df.to_csv("../resultados/dataset_con_deteccion.csv", index=False)
+# Crear directorio de resultados
+RESULTADOS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Guardar dataset con las detecciones
+df.to_csv(RESULTADOS_DIR / "dataset_con_deteccion.csv", index=False)
 
 # =========================================================
 # EVALUACION CONTRA GROUND TRUTH (solo posible porque el dato es simulado)
