@@ -143,11 +143,22 @@ def evaluar(col_pred, nombre):
     fp = ((df[col_pred]) & (df["es_anomalia_real"] == 0)).sum()
     fn = ((~df[col_pred]) & (df["es_anomalia_real"] == 1)).sum()
     tn = ((~df[col_pred]) & (df["es_anomalia_real"] == 0)).sum()
+
     precision = tp / (tp + fp) if (tp + fp) else 0
     recall = tp / (tp + fn) if (tp + fn) else 0
+
+    f1 = (
+        2 * precision * recall / (precision + recall)
+        if (precision + recall) else 0
+    )
+
     print(f"\n--- {nombre} ---")
     print(f"Detectadas: {df[col_pred].sum()} | TP={tp} FP={fp} FN={fn} TN={tn}")
-    print(f"Precision={precision:.2f}  Recall={recall:.2f}")
+    print(
+        f"Precision={precision:.2f}  "
+        f"Recall={recall:.2f}  "
+        f"F1-score={f1:.2f}"
+    )
 
 print("=" * 55)
 print("RESULTADOS DE DETECCION")
@@ -159,3 +170,24 @@ evaluar("flag_combinado", "Combinado (reglas OR estadistica)")
 print("\nTotal mesas:", len(df))
 print("Mesas marcadas por al menos una tecnica:", df["flag_combinado"].sum())
 print("Mesas marcadas por AMBAS tecnicas (mayor confianza):", (df["n_tecnicas_que_detectan"] == 2).sum())
+
+# =========================================================
+# EVALUACION POR TIPO DE ANOMALIA
+# =========================================================
+
+print("\n" + "=" * 70)
+print("EVALUACION DE DETECCION POR TIPO DE ANOMALIA")
+print("=" * 70)
+
+# Filtrar solamente las mesas que realmente son anomalas
+df_anomalias = df[df["es_anomalia_real"] == 1]
+
+# Agrupar por tipo de anomalia y contar los resultados
+resumen_tipos = df_anomalias.groupby("tipo_anomalia").agg(
+    total_real=("mesa_id", "count"),
+    detectadas_reglas=("flag_reglas", "sum"),
+    detectadas_estadistica=("flag_estadistica", "sum"),
+    detectadas_combinado=("flag_combinado", "sum")
+).reset_index()
+
+print(resumen_tipos.to_string(index=False))

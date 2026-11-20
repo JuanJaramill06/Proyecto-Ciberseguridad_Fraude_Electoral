@@ -68,27 +68,48 @@ sns.histplot(x=max_pct, hue=df["flag_combinado"], bins=40,
 plt.axvline(90, color="black", linestyle="--", label="Umbral regla (90%)")
 plt.title("Porcentaje del candidato más votado por mesa")
 plt.xlabel("% de votos del candidato líder en la mesa")
+plt.ylabel("Número de mesas")
 plt.legend(title="Marcada como anómala")
 plt.tight_layout()
 plt.savefig(FIGURAS_DIR / "fig4_concentracion_candidato.png", dpi=150)
 plt.close()
 
-# 5. Comparacion de tecnicas (barras): cuantas detecta cada una
-plt.figure(figsize=(7, 5))
-conteos = {
-    "Reglas simples": df["flag_reglas"].sum(),
-    "Estadística (z-score)": df["flag_estadistica"].sum(),
-    "Combinado (OR)": df["flag_combinado"].sum(),
-    "Detectado por ambas": (df["n_tecnicas_que_detectan"] == 2).sum(),
-}
-plt.bar(conteos.keys(), conteos.values(), color=["#4c72b0", "#dd8452", "#55a868", "#c44e52"])
-plt.title("Mesas marcadas por cada técnica de detección")
-plt.ylabel("Número de mesas")
+# 5. Comparacion de deteccion por tipo de anomalia
+plt.figure(figsize=(10, 6))
+
+df_anomalias = df[df["es_anomalia_real"] == 1]
+
+resumen = df_anomalias.groupby("tipo_anomalia").agg(
+    reglas=("flag_reglas", "sum"),
+    estadistica=("flag_estadistica", "sum")
+).reset_index()
+
+resumen = resumen.melt(
+    id_vars="tipo_anomalia",
+    value_vars=["reglas", "estadistica"],
+    var_name="tecnica",
+    value_name="mesas_detectadas"
+)
+
+sns.barplot(
+    data=resumen,
+    x="tipo_anomalia",
+    y="mesas_detectadas",
+    hue="tecnica",
+    palette="Set2"
+)
+
+plt.title("Deteccion de anomalias por tipo y tecnica")
+plt.xlabel("Tipo de anomalia")
+plt.ylabel("Mesas detectadas")
 plt.xticks(rotation=15)
-for i, v in enumerate(conteos.values()):
-    plt.text(i, v + 1, str(v), ha="center")
+plt.legend(title="Tecnica")
 plt.tight_layout()
-plt.savefig(FIGURAS_DIR / "fig5_comparacion_tecnicas.png", dpi=150)
+
+plt.savefig(
+    FIGURAS_DIR / "fig5_deteccion_por_tipo.png",
+    dpi=150
+)
 plt.close()
 
 print("5 visualizaciones generadas en", FIGURAS_DIR)

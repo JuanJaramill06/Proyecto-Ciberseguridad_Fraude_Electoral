@@ -50,6 +50,7 @@ for i in range(N_MESAS_NORMALES):
         "hora_cierre_min": hora_cierre_min,
         "tiempo_reporte_min": tiempo_reporte,
         "es_anomalia_real": 0,  # ground truth para validar (no usar en el modelo)
+        "tipo_anomalia": "normal",
     })
 
 # ---------- Mesas anomalas (varios tipos de anomalia) ----------
@@ -100,6 +101,7 @@ for i, tipo in enumerate(tipos_anomalia):
         "hora_cierre_min": hora_cierre_min,
         "tiempo_reporte_min": tiempo_reporte,
         "es_anomalia_real": 1,
+        "tipo_anomalia": tipo,
     })
 
 df = pd.DataFrame(filas).sample(frac=1, random_state=42).reset_index(drop=True)
